@@ -1,0 +1,7 @@
+.git
+.env
+airflow_settings.yaml
+astrocloud
+venv/
+.idea/
+include/.kube

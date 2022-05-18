@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dummy-name
+spec:
+  containers:
+    - name: base
+      image: dummy_image
+#      imagePullPolicy: Always
+      # this is required to work with local image in docker-desktop
+      imagePullPolicy: Never
+      ports: []
+      lifecycle:
+        postStart:
+          exec:
+            command:
+              - sh
+              - -c
+              - echo "creating running-mutex" && touch /data/running-mutex
+        preStop:
+          exec:
+            command:
+              - sh
+              - -c
+              - echo "deleting running-mutex" && rm -rf /data/running-mutex
+      volumeMounts:
+        - mountPath: "/data"
+          name: data
+    - name: sidecar
+      image: dummy_image
+#      imagePullPolicy: Always
+      # this is required to work with local image in docker-desktop
+      imagePullPolicy: Never
+      ports: []
+      restartPolicy: Always
+      lifecycle:
+        type: Sidecar
+      volumeMounts:
+        - mountPath: "/data"
+          name: data
+  hostNetwork: false
+  restartPolicy: Never
+  securityContext:
+    runAsUser: 1001
+    fsGroup: 1001
+  volumes:
+    - emptyDir: { }
+      name: data
